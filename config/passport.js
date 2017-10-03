@@ -4,14 +4,8 @@ var session = require('express-session');
 var mysql = require('mysql');
 var bcrypt = require('bcryptjs');
 var flash = require('connect-flash');
-var config = require('./config.js');
-
-var pool = mysql.createPool({
-    host  : 'localhost',
-    user  : 'root',
-    password: 'testPassword',
-    database: 'beer_tracker'
-});
+var config = require('./config');
+var pool = require('./dbconnect');
 
 var saltRounds = 10;
 
@@ -22,7 +16,7 @@ module.exports = function(passport) {
     });
 
     passport.deserializeUser(function(id, done) {
-        pool.query("SELECT * FROM beer_tracker.users where id = ?", [id], function(err, rows) {
+        pool.pool.query("SELECT * FROM beer_tracker.users where id = ?", [id], function(err, rows) {
             done(err, rows[0]);
         });
     });
@@ -36,7 +30,7 @@ module.exports = function(passport) {
         if (req.body.password !== req.body.password_dup) {
             return done(null, false, req.flash('message', 'Passwords do not match'));
         }
-        pool.query("SELECT * FROM beer_tracker.users WHERE email = ?", [email], function(err, rows) {
+        pool.pool.query("SELECT * FROM beer_tracker.users WHERE email = ?", [email], function(err, rows) {
             if (err) {
                 return done(err);
             }
@@ -51,7 +45,7 @@ module.exports = function(passport) {
                     };
                     var insertQuery = "INSERT INTO beer_tracker.users ( email, password ) values (?,?)";
 
-                    pool.query(insertQuery, [newUserQuery.email, newUserQuery.password], function(err, rows) {
+                    pool.pool.query(insertQuery, [newUserQuery.email, newUserQuery.password], function(err, rows) {
                         newUserQuery.id = rows.insertId;
                         return done(null, newUserQuery, req.flash('message', 'Account Created and Logged In'));
                     });
@@ -65,7 +59,7 @@ module.exports = function(passport) {
         passwordField: 'password',
         passReqToCallback: true
     }, function(req, email, password, done) {
-        pool.query("SELECT * FROM beer_tracker.users WHERE email = ?", [email], function(err, rows) {
+        pool.pool.query("SELECT * FROM beer_tracker.users WHERE email = ?", [email], function(err, rows) {
             if (err) {
                 return done(err);
             }
@@ -86,16 +80,16 @@ module.exports = function(passport) {
     passport.use('facebook', new facebook_strategy ({
        clientID: config.config.clientID,
        clientSecret: config.config.clientSecret,
-       callbackURL: 'http://localhost:6576/auth/facebook/callback',
+       callbackURL: 'http://localhost:6576/user/auth/facebook/callback',
        passReqToCallback: true
     }, 
     function(req, accessToken, refreshToken, profile, done) {
-        pool.query("SELECT * FROM beer_tracker.users WHERE user_id = ?", [profile.id], function(err, rows) {
+        pool.pool.query("SELECT * FROM beer_tracker.users WHERE user_id = ?", [profile.id], function(err, rows) {
             if (err) {
                 return done(err);
             }
             if (!rows.length) {
-                pool.query("INSERT INTO beer_tracker.users (user_id) values (?)", [profile.id], function(err, rows) {
+                pool.pool.query("INSERT INTO beer_tracker.users (user_id) values (?)", [profile.id], function(err, rows) {
                     if (err) {
                         return done(err);
                     }
