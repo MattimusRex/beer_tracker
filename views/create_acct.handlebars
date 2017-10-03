@@ -1,0 +1,22 @@
+<div class="container">
+    <form action="/create_acct" method="post">
+    <legend>Create Account</legend>
+
+    <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+    </div>
+
+    <div class="form-group">
+        <label for="password_dup">Re-enter Password</label>
+        <input type="password" class="form-control" id="password_dup" name="password_dup" required>
+    </div>
+
+    <input type="submit" value="Create Account" name="submit_create" class="btn btn-primary">
+    </form>
+</div>

@@ -1,0 +1,24 @@
+<div class="container">
+    <form action="/login" method="post">
+    <legend><h4>Login</h4></legend>
+
+    <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+    </div>
+    
+    <input type="submit" value="Login" name="submit_login" class="btn btn-primary">
+    </form>
+</div>
+<br>
+<div class="container">
+    <h4>Or</h4>
+    <div>
+        <a class="btn btn-primary" href="/auth/facebook">Login with Facebook</a>
+    </div>
+</div>

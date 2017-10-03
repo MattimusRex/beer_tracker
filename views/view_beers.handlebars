@@ -1,0 +1,103 @@
+<div class="container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Style</th>
+                <th>Rating</th>
+                <th>Review</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each rows}}
+                <tr>
+                    <td style="display:none">{{this.id}}</td>
+                    <td>{{this.name}}</td>
+                    <td>{{this.style}}</td>
+                    <td>{{this.rating}}</td>
+                    <td>{{this.review}}</td>
+                    <td>{{this.location}}</td>
+                    <td><button class="btn btn-primary" data-toggle="modal" data-target="#edit_modal">Edit</button></td>
+                    <td><button class="btn btn-primary" onclick="delete_beer({{this.id}}, '{{this.name}}', this)">Delete</button></td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="edit_modal" tabindex="-1" role="dialog" aria-labelledby="edit_modal_label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="edit_modal_label">Edit Beer</h4>
+            </div>
+            <div class="modal-body">
+                <form action="/edit_beer" method="post">
+                <input type="hidden" class="form-control" id="beer_id" name="beer_id">
+                    <div class="form-group">
+                        <label for="beer_name">Beer Name</label>
+                        <input type="text" class="form-control" id="beer_name" name="beer_name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="beer_style">Beer Style</label>
+                        <select class="form-control" id="beer_style" name="beer_style">
+                            <option>IPA</option>
+                            <option>Pale Ale</option>
+                            <option>DIPA</option>
+                            <option>Vienna Lager</option>
+                            <option>Adjunct Lager</option>
+                            <option>Stout</option>
+                        </select>
+                    </div>
+                    
+                    <label for="beer_rating">Rating</label>
+                    <div class="form-group" id="beer_rating">
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="beer_rating" id="rating_1" value="1"> 1
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="beer_rating" id="rating_2" value="2"> 2
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="beer_rating" id="rating_3" value="3"> 3
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="beer_rating" id="rating_4" value="4"> 4
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="beer_rating" id="rating_5" value="5"> 5
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="beer_review">Review</label>
+                        <textarea class="form-control" id="beer_review" name="beer_review" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="beer_location">Location</label>
+                        <textarea class="form-control" id="beer_location" name="beer_location" rows="3"></textarea>
+                    </div>
+
+                    <input type="submit" value="Save Changes" class="btn btn-primary">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
