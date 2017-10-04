@@ -13,6 +13,10 @@ $(document).ready(function() {
     })
 });
 
+$(document).ready(function() {
+    $('#beer_table').DataTable();
+});
+
 function delete_beer(id, name, button) {
     if (confirm("Are you sure you want to delete " + name + "?") == true) {
         var req = new XMLHttpRequest();
