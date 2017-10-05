@@ -20,20 +20,16 @@ $(document).ready(function() {
 function delete_beer(id, name, button) {
     if (confirm("Are you sure you want to delete " + name + "?") == true) {
         var req = new XMLHttpRequest();
-        var payload = {};
-        payload.id = id;
-        req.open('DELETE', 'http://localhost:6576/beer', true);
+        req.open('DELETE', 'http://localhost:6576/api/beers/' + id, true);
         req.setRequestHeader('Content-Type', 'application/json');
         req.addEventListener('load', function() {
             if (req.status >= 200 && req.status < 400) {
-                console.log ('Beer Deleted');
-                var row = button.parentNode.parentNode;
-                row.remove(true);
+                document.getElementById(id).remove(true);
             }
             else {
                 console.log('Beer Deletion Failed');
             }
         });
-        req.send(JSON.stringify(payload));
+        req.send();
     }
 }

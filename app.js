@@ -6,8 +6,9 @@ var passport = require("passport");
 var session = require("express-session");
 var flash = require("connect-flash");
 var my_sql_store = require('express-mysql-session')(session);
-var routes = require('./routes/routes')
+var site_routes = require('./routes/site')
 var user_routes = require('./routes/user');
+var api_routes = require('./routes/api');
 var pool = require('./config/dbconnect');
 require("./config/passport")(passport); 
 
@@ -43,8 +44,9 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.use('/', routes)
+app.use('/', site_routes)
 app.use('/user', user_routes);
+app.use('/api', api_routes);
 
 app.use(function(req,res){
     res.type('text/plain');
