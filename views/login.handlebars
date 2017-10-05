@@ -1,24 +1,47 @@
 <div class="container">
-    <form action="/user/login" method="post">
-    <legend><h4>Login</h4></legend>
+    <div class="row">
+        <div class="col">
+            <form action="/user/login" method="post">
+                <legend>Login</legend>
 
-    <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" class="form-control" id="email" name="email" required>
-    </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
 
-    <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" class="form-control" id="password" name="password" required>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                
+                <input type="submit" value="Login" name="submit_login" class="btn btn-primary">
+            </form>
+            
+            <a class="btn btn-primary mt-1" href="/user/auth/facebook">Login with Facebook</a>
+        </div>
+
+        <div class="col">
+            <form action="/user/create_acct" method="post">
+                <legend>Create Account</legend>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password_dup">Re-enter Password</label>
+                    <input type="password" class="form-control" id="password_dup" name="password_dup" required>
+                </div>
+
+                <input type="submit" value="Create Account" name="submit_create" class="btn btn-primary">
+            </form>
+        </div>
+
     </div>
-    
-    <input type="submit" value="Login" name="submit_login" class="btn btn-primary">
-    </form>
-</div>
-<br>
-<div class="container">
-    <h4>Or</h4>
-    <div>
-        <a class="btn btn-primary" href="/user/auth/facebook">Login with Facebook</a>
-    </div>
-</div>
+<div>

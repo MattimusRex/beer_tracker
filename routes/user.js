@@ -8,7 +8,7 @@ router.get('/create_acct', function(req, res, next) {
 
 router.post('/create_acct', passport.authenticate('local-signup', {
     successRedirect: '/',
-    failureRedirect: '/create_acct',
+    failureRedirect: '/user/login',
     failureFlash:true
 }));
 
@@ -18,7 +18,7 @@ router.get('/login', function(req, res, next) {
 
 router.post('/login', passport.authenticate('local-login', {
     successRedirect: '/',
-    failureRedirect: '/login',
+    failureRedirect: '/user/login',
     failureFlash:true
 }));
 
@@ -32,7 +32,7 @@ router.get('/auth/facebook', passport.authenticate('facebook'));
 
 router.get('/auth/facebook/callback', passport.authenticate('facebook', {
     successRedirect: '/',
-    failureRedirect: '/login',
+    failureRedirect: '/user/login',
     failureFlash: true
 }));
 
