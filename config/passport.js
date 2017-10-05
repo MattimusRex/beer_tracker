@@ -28,15 +28,19 @@ module.exports = function(passport) {
 
     }, function(req, email, password, done) {
         if (req.body.password !== req.body.password_dup) {
-            return done(null, false, req.flash('message', 'Passwords do not match'));
+            return done(null, false, req.flash('error_message', 'Passwords do not match'));
         }
         pool.pool.query("SELECT * FROM beer_tracker.users WHERE email = ?", [email], function(err, rows) {
             if (err) {
                 return done(err);
             }
             if (rows.length) {
-                return done(null, false, req.flash('message', 'That email is already taken.'));
+                return done(null, false, req.flash('error_message', 'That email is already taken.'));
             } 
+            var re = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{12,}/;
+            if (!re.test(password)) {
+                return done(null, false, req.flash('error_message', 'Your password must be at least 12 characters long and contain 1 number, 1 uppercase letter, and 1 lowercase letter.'));
+            }
             else {
                 bcrypt.hash(password, saltRounds, function(err, hash) {
                     var newUserQuery = {
@@ -64,14 +68,14 @@ module.exports = function(passport) {
                 return done(err);
             }
             if (!rows.length) {
-                return done(null, false, req.flash('message', 'Email address not found'));
+                return done(null, false, req.flash('error_message', 'Email address not found'));
             }
             bcrypt.compare(password, rows[0].password, function(err, res) {
                 // res == true
                 if (res) {
                     return done(null, rows[0], req.flash('message', 'Login Successful'));
                 } else {
-                    return done(null, false, req.flash('message', 'Incorrect Password'));
+                    return done(null, false, req.flash('error_message', 'Incorrect Password'));
                 }
             });
         });

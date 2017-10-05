@@ -33,3 +33,14 @@ function delete_beer(id, name, button) {
         req.send();
     }
 }
+
+function validate_password(password) {
+    // at least one number, one lowercase and one uppercase letter and at least 12 chars
+    var re = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{12,}/;
+    if (!re.test(password.value)) {
+        alert("Your password must be at least 12 characters long and contain 1 number, 1 uppercase letter, and 1 lowercase letter.");
+        password.focus();
+        return false;
+    }
+    return true;
+}

@@ -3,7 +3,7 @@ var router = express.Router();
 var passport = require('passport');
 
 router.get('/create_acct', function(req, res, next) {
-    res.render('create_acct', {message: req.flash('message')});
+    res.render('create_acct', {message: req.flash('message'), error_message: req.flash('error_message')});
 });
 
 router.post('/create_acct', passport.authenticate('local-signup', {
@@ -13,7 +13,7 @@ router.post('/create_acct', passport.authenticate('local-signup', {
 }));
 
 router.get('/login', function(req, res, next) {
-    res.render('login', {message: req.flash('message')});
+    res.render('login', {message: req.flash('message'), error_message: req.flash('error_message')});
 });
 
 router.post('/login', passport.authenticate('local-login', {
