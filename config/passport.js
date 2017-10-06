@@ -6,6 +6,12 @@ var bcrypt = require('bcryptjs');
 var flash = require('connect-flash');
 var config = require('./config');
 var pool = require('./dbconnect');
+var mailer = require("./mailer.js");
+var crypto = require("crypto");
+
+function create_verification_id() {
+    return crypto.randomBytes(48).toString('hex');
+}
 
 var saltRounds = 10;
 
@@ -17,6 +23,9 @@ module.exports = function(passport) {
 
     passport.deserializeUser(function(id, done) {
         pool.pool.query("SELECT * FROM beer_tracker.users where id = ?", [id], function(err, rows) {
+            if (!rows.length) {
+                done(err, null);
+            }
             done(err, rows[0]);
         });
     });
@@ -47,11 +56,12 @@ module.exports = function(passport) {
                         email: email,
                         password: hash
                     };
-                    var insertQuery = "INSERT INTO beer_tracker.users ( email, password ) values (?,?)";
+                    var verification_id = create_verification_id();
 
-                    pool.pool.query(insertQuery, [newUserQuery.email, newUserQuery.password], function(err, rows) {
+                    pool.pool.query("INSERT INTO beer_tracker.users ( email, password, active, verification_id ) values (?, ?, 0, ?)", [newUserQuery.email, newUserQuery.password, verification_id], function(err, rows) {
                         newUserQuery.id = rows.insertId;
-                        return done(null, newUserQuery, req.flash('message', 'Account Created and Logged In'));
+                        mailer.send_verification_mail(newUserQuery.email, verification_id);
+                        return done(null, newUserQuery, req.flash('message', 'Verification Email Sent.  Please click the link in the email to finish creating your account.'));
                     });
                 });
             }
@@ -69,6 +79,9 @@ module.exports = function(passport) {
             }
             if (!rows.length) {
                 return done(null, false, req.flash('error_message', 'Email address not found'));
+            }
+            if (rows[0].active == 0) {
+                return done(null, false, req.flash('error_message', 'That email address needs to be verified.'));
             }
             bcrypt.compare(password, rows[0].password, function(err, res) {
                 // res == true
@@ -93,7 +106,7 @@ module.exports = function(passport) {
                 return done(err);
             }
             if (!rows.length) {
-                pool.pool.query("INSERT INTO beer_tracker.users (user_id) values (?)", [profile.id], function(err, rows) {
+                pool.pool.query("INSERT INTO beer_tracker.users (user_id, active) values (?, 1)", [profile.id], function(err, rows) {
                     if (err) {
                         return done(err);
                     }
