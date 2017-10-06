@@ -1,4 +1,5 @@
 var express = require("express");
+var fs = require("fs");
 var handlebars = require("express-handlebars").create({defaultLayout:"main"});
 var bodyParser = require("body-parser");
 var mysql = require('mysql');
@@ -10,6 +11,7 @@ var site_routes = require('./routes/site')
 var user_routes = require('./routes/user');
 var api_routes = require('./routes/api');
 var pool = require('./config/dbconnect');
+var https = require('https');
 require("./config/passport")(passport); 
 
 
@@ -23,7 +25,12 @@ app.use(flash());
 app.engine("handlebars", handlebars.engine);
 app.set("view engine", "handlebars");
 
-app.set("port", 6576);
+app.set("http_port", 6576);
+app.set("https_port", 6577);
+var https_options = {
+    key : fs.readFileSync("C:/Users/Matt/Documents/OpenSSL/bin/server.key"),
+    cert : fs.readFileSync("C:/Users/Matt/Documents/OpenSSL/bin/server.crt")
+};
 
 var session_store = new my_sql_store({}, pool.pool);
 
@@ -44,6 +51,13 @@ app.use(function(req, res, next) {
     next();
 });
 
+app.all("*", function(req, res, next) {
+    if (req.secure) {
+        return next();
+    }
+    res.redirect("https://localhost:" + app.get("https_port") + req.url);
+});
+
 app.use('/', site_routes)
 app.use('/user', user_routes);
 app.use('/api', api_routes);
@@ -61,6 +75,9 @@ app.use(function(req,res){
     res.send('500 - Server Error');
   });
 
-app.listen(app.get('port'), function(){
-    console.log('Express started on localhost:' + app.get('port') + '; press Ctrl-C to terminate.');
+app.listen(app.get('http_port'), function(){
+    console.log('Express http started on localhost:' + app.get('http_port') + '; press Ctrl-C to terminate.');
+});
+var secure_server = https.createServer(https_options, app).listen(app.get("https_port"), function() {
+    console.log('Express https started on localhost:' + app.get('https_port') + '; press Ctrl-C to terminate.');    
 });
