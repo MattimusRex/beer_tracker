@@ -61,7 +61,8 @@ module.exports = function(passport) {
                     pool.pool.query("INSERT INTO beer_tracker.users ( email, password, active, verification_id ) values (?, ?, 0, ?)", [newUserQuery.email, newUserQuery.password, verification_id], function(err, rows) {
                         newUserQuery.id = rows.insertId;
                         mailer.send_verification_mail(newUserQuery.email, verification_id);
-                        return done(null, newUserQuery, req.flash('message', 'Verification Email Sent.  Please click the link in the email to finish creating your account.'));
+                        var ver_str = "Verification Email Sent.  Please click the link in the email to finish creating your account. Please login to resend verification email";
+                        return done(null, newUserQuery, req.flash('message', ver_str));
                     });
                 });
             }
