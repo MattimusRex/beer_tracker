@@ -61,7 +61,7 @@ module.exports = function(passport) {
                     pool.pool.query("INSERT INTO beer_tracker.users ( email, password, active, verification_id ) values (?, ?, 0, ?)", [newUserQuery.email, newUserQuery.password, verification_id], function(err, rows) {
                         newUserQuery.id = rows.insertId;
                         mailer.send_verification_mail(newUserQuery.email, verification_id);
-                        var ver_str = "Verification Email Sent.  Please click the link in the email to finish creating your account. Please login to resend verification email";
+                        var ver_str = "Verification Email Sent.  Please click the link in the email to finish creating your account.";
                         return done(null, newUserQuery, req.flash('message', ver_str));
                     });
                 });
@@ -82,7 +82,7 @@ module.exports = function(passport) {
                 return done(null, false, req.flash('error_message', 'Email address not found'));
             }
             if (rows[0].active == 0) {
-                return done(null, false, req.flash('error_message', 'That email address needs to be verified.'));
+                return done(null, false, req.flash('error_message', 'Email address not verified.'));
             }
             bcrypt.compare(password, rows[0].password, function(err, res) {
                 // res == true
