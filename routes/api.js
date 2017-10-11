@@ -11,9 +11,7 @@ router.get('/beers', function(req, res, next) {
             next(err);
             return;
         }
-        var payload = {};
-        payload.rows = rows;
-        res.render('view_beers', payload);
+        res.json(rows);
     });
 });
 
@@ -25,13 +23,10 @@ router.get('/beers/:id', function(req, res, next) {
             next(err);
             return;
         }
-        if (rows[0]) {
-            var payload = {};
-            payload.rows = rows;
-            res.render('view_beers', payload);
+        if (rows.length) {
+            res.json(rows);
         }
         else {
-            console.log(req.params.id);
             res.sendStatus(404);
         }
     });
@@ -40,45 +35,66 @@ router.get('/beers/:id', function(req, res, next) {
 //create a new beer under a specific account
 router.post('/beers', function(req, res, next) {
     pool.pool.query("INSERT INTO beer_tracker.beers (name, style, rating, review, location, user_id) VALUES (?, ?, ?, ?, ?, ?)", [req.body.beer_name,
-        req.body.beer_style, req.body.beer_rating, req.body.beer_review, req.body.beer_location, req.user.id], function(err, result) {
+        req.body.beer_style, req.body.beer_rating, req.body.beer_review || null, req.body.beer_location || null, req.user.id], function(err, result) {
             if (err) {
                 next(err);
                 return;
             }
-            req.flash('message', "Beer Added Successfully");
-            res.render('add_beer', {message: req.flash('message')});
+            else {
+                pool.pool.query("SELECT name, style, rating, review, location FROM beer_tracker.beers WHERE id = ?" , [result.insertId], function (err, rows, fields) {
+                    if (err) {
+                        next(err);
+                        return;
+                    }
+                    res.location('/api/beers/' + result.insertId);
+                    res.status(201).json(rows);
+                });
+            }
     });
 });
 
 //edit all of specific beer
 router.put('/beers/:id', function(req, res, next) {
     pool.pool.query("UPDATE beer_tracker.beers B INNER JOIN beer_tracker.users U on U.id = B.user_id SET B.name = ?, B.style = ?, B.rating = ?, B.review = ?, B.location = ? WHERE U.id = ? AND B.id = ?", 
-    [req.body.beer_name, req.body.beer_style, req.body.beer_rating, req.body.beer_review, req.body.beer_location, req.user.id, req.params.id], function(err, rows, fields) {
+    [req.body.beer_name, req.body.beer_style, req.body.beer_rating, req.body.beer_review || null, req.body.beer_location || null, req.user.id, req.params.id], function(err, rows, fields) {
         if (err) {
             next(err);
             return;
         }
-        res.redirect('view_beers');
+        pool.pool.query("SELECT B.name, B.style, B.rating, B.review, B.location FROM beer_tracker.beers B INNER JOIN beer_tracker.users U on U.id = B.user_id WHERE U.id = ? AND B.id = ?", 
+        [req.user.id, req.params.id], function (err, rows, fields) {
+            if (err) {
+                next(err);
+                return;
+            }
+            res.json(rows);
+        });
     });
 });
 
 //edit part of a specific beer
-router.put('/beers/:id', function(req, res, next) {
+router.patch('/beers/:id', function(req, res, next) {
     pool.pool.query("SELECT B.name, B.style, B.rating, B.review, B.location FROM beer_tracker.beers B INNER JOIN beer_tracker.users U on U.id = B.user_id WHERE U.id = ? AND B.id = ?", 
     [req.user.id, req.params.id], function (err, rows, fields) {
         if (err) {
             next(err);
             return;
         }
-        var results = rows;
         pool.pool.query("UPDATE beer_tracker.beers B INNER JOIN beer_tracker.users U on U.id = B.user_id SET B.name = ?, B.style = ?, B.rating = ?, B.review = ?, B.location = ? WHERE U.id = ? AND B.id = ?",
-        [req.body.beer_name || results.name, req.body.beer_style || results.style, req.body.beer_rating || results.rating, req.body.beer_review || results.review, req.body.beer_location || results.location,
+        [req.body.beer_name || rows[0].name, req.body.beer_style || rows[0].style, req.body.beer_rating || rows[0].rating, req.body.beer_review || rows[0].review, req.body.beer_location || rows[0].location,
         req.user.id, req.params.id], function(err, rows, fields) {
             if (err) {
                 next(err);
                 return;
             }
-            res.redirect('view_beers');
+            pool.pool.query("SELECT B.name, B.style, B.rating, B.review, B.location FROM beer_tracker.beers B INNER JOIN beer_tracker.users U on U.id = B.user_id WHERE U.id = ? AND B.id = ?", 
+            [req.user.id, req.params.id], function (err, rows, fields) {
+                if (err) {
+                    next(err);
+                    return;
+                }
+                res.json(rows);
+            });
         });
     });
 });
