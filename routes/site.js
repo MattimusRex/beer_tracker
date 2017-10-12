@@ -39,7 +39,7 @@ router.post('/edit_beer', function(req, res, next) {
             next(err);
             return;
         }
-        res.redirect('view_beers');
+        res.sendStatus(200);
     });
 });
 
